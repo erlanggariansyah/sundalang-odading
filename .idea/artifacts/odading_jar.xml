@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="odading:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/odading_jar</output-path>
+    <root id="archive" name="odading.jar">
+      <element id="module-output" name="odading" />
+    </root>
+  </artifact>
+</component>
