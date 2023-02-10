@@ -6,7 +6,7 @@ package com.erlanggariansyah.odading;
 
 /**
  *
- * @author Lenovo
+ * @author Erlangga Riansyah
  */
 public class Odading {
     public static void main(String[] args) {

@@ -7,42 +7,61 @@ import java.io.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.border.Border;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.Element;
 
 /**
  *
- * @author Lenovo
+ * @author Erlangga Riansyah
  */
 public class OdadingCore extends JFrame implements ActionListener, WindowListener {
+    private static final String COMMIT_ACTION = "commit";
     JTextArea jTextArea = new JTextArea();
     JTextArea jLineArea = new JTextArea("1");
     File fileNameContainer;
 
     public OdadingCore() {
-        Font font = new Font("Consolas", Font.PLAIN, 15);
+        Font font = new Font("Consolas", Font.PLAIN, 16);
+        Font fontBold = new Font("Consolas", Font.BOLD, 15);
         Container container = getContentPane();
 
         JMenuBar jMenuBar = new JMenuBar();
         JMenu jFile = new JMenu("File");
         JMenu jEdit = new JMenu("Edit");
         JMenu jRun = new JMenu("Run");
-        JMenu jExample = new JMenu("Example");
+        JMenu jSyntax = new JMenu("Syntax");
+        JMenu jWindow = new JMenu("Window");
+        JMenu jHelp = new JMenu("Help");
 
         container.setLayout(new BorderLayout());
 
         JScrollPane jScrollPane = new JScrollPane(jTextArea);
         jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        jScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         jScrollPane.setVisible(true);
 
-        jTextArea.setFont(font);
+        jTextArea.setFont(fontBold);
         jTextArea.setWrapStyleWord(true);
-        jTextArea.setMargin(new Insets(0, 10, 0, 10));
+        jTextArea.setMargin(new Insets(10, 10, 0, 10));
         jTextArea.setLineWrap(true);
+        jTextArea.setBackground(Color.decode("#252526"));
+        jTextArea.setForeground(Color.WHITE);
+        jTextArea.setCaretColor(Color.WHITE);
+        jTextArea.setFocusTraversalKeysEnabled(false);
+
+        // AUTO COMPLETE
+        List<String> keywords = new ArrayList<>(5);
+        keywords.add("example");
+        keywords.add("autocomplete");
+        keywords.add("stackabuse");
+        keywords.add("java");
+        Autocomplete autoComplete = new Autocomplete(jTextArea, keywords);
+        jTextArea.getDocument().addDocumentListener(autoComplete);
+        jTextArea.getInputMap().put(KeyStroke.getKeyStroke("TAB"), COMMIT_ACTION);
+        jTextArea.getActionMap().put(COMMIT_ACTION, autoComplete.new CommitAction());
+        //
 
         container.add(jScrollPane);
 
@@ -56,14 +75,19 @@ public class OdadingCore extends JFrame implements ActionListener, WindowListene
         createMenuItem(jEdit, "Copy");
         createMenuItem(jEdit, "Paste");
 
-        createMenuItem(jExample, "Syntax Example");
+        createMenuItem(jSyntax, "Syntax List");
 
-        createMenuItem(jRun, "Run");
+        createMenuItem(jRun, "Run as Java");
+        createMenuItem(jRun, "Run as SundaLang");
+        jRun.addSeparator();
+        createMenuItem(jRun, "Build");
 
         jMenuBar.add(jFile);
         jMenuBar.add(jEdit);
-        jMenuBar.add(jExample);
+        jMenuBar.add(jSyntax);
         jMenuBar.add(jRun);
+        jMenuBar.add(jWindow);
+        jMenuBar.add(jHelp);
 
         setJMenuBar(jMenuBar);
         //	setIconImage(Toolkit.getDefaultToolkit().getImage("notepad.gif"));
@@ -71,15 +95,20 @@ public class OdadingCore extends JFrame implements ActionListener, WindowListene
         setSize(1280, 720);
         setTitle("Test.westjava - Odading");
 
-        jLineArea.setBackground(Color.LIGHT_GRAY);
+        jLineArea.setBackground(Color.decode("#3E3E42"));
+        jLineArea.setForeground(Color.LIGHT_GRAY);
         jLineArea.setEditable(false);
         jLineArea.setFont(font);
+        jLineArea.setColumns(5);
+        jLineArea.setSelectedTextColor(Color.BLACK);
+        jLineArea.setMargin(new Insets(10, 5,0,0));
 
         jTextArea.getDocument().addDocumentListener(new DocumentListener() {
             public String getText() {
                 int caretPosition = jTextArea.getDocument().getLength();
                 Element root = jTextArea.getDocument().getDefaultRootElement();
                 StringBuilder text = new StringBuilder("1" + System.getProperty("line.separator"));
+
                 for (int i = 2; i < root.getElementIndex(caretPosition) + 2; i++) {
                     text.append(i).append(System.getProperty("line.separator"));
                 }
@@ -104,7 +133,6 @@ public class OdadingCore extends JFrame implements ActionListener, WindowListene
         });
 
         jScrollPane.setRowHeaderView(jLineArea);
-        jScrollPane.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
         setVisible(true);
     }
@@ -152,7 +180,7 @@ public class OdadingCore extends JFrame implements ActionListener, WindowListene
                 try {
                     File fyl = jfc.getSelectedFile();
                     SaveFile(fyl.getAbsolutePath());
-                    this.setTitle(fyl.getName() + " - Notepad");
+                    this.setTitle(fyl.getName() + " - Odading");
                     fileNameContainer = fyl;
                 } catch (Exception ignored) {}
             }
@@ -168,7 +196,7 @@ public class OdadingCore extends JFrame implements ActionListener, WindowListene
             jTextArea.paste();
         } else if (e.getActionCommand().equals("Syntax Example")) {
             // ABOUT COMMAND
-            JOptionPane.showMessageDialog(this, "Thanks for Baeldung, StackOverflow & Geeksforgeeks.", "Notepad", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Thanks for Baeldung, StackOverflow & Geeksforgeeks.", "Odading", JOptionPane.INFORMATION_MESSAGE);
         } else if (e.getActionCommand().equals("Cut")) {
             // CUT COMMAND
             jTextArea.cut();
