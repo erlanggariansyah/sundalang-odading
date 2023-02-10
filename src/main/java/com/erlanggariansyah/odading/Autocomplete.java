@@ -5,16 +5,17 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import java.awt.event.ActionEvent;
+import java.io.Serial;
 import java.util.Collections;
 import java.util.List;
 
 public class Autocomplete implements DocumentListener {
-    private static enum Mode {
+    private enum Mode {
         INSERT,
         COMPLETION
     }
 
-    private JTextArea textField;
+    private final JTextArea textField;
     private final List<String> keywords;
     private Mode mode = Mode.INSERT;
 
@@ -43,7 +44,7 @@ public class Autocomplete implements DocumentListener {
             e.printStackTrace();
         }
 
-        // Find where the word starts
+        // Mencari posisi awal kata
         int w;
         for (w = pos; w >= 0; w--) {
             if (!Character.isLetter(content.charAt(w))) {
@@ -51,7 +52,7 @@ public class Autocomplete implements DocumentListener {
             }
         }
 
-        // Too few chars
+        // Jumlah karakter terlalu sedikit
         if (pos - w < 2)
             return;
 
@@ -60,29 +61,28 @@ public class Autocomplete implements DocumentListener {
         if (n < 0 && -n <= keywords.size()) {
             String match = keywords.get(-n - 1);
             if (match.startsWith(prefix)) {
-                // A completion is found
+                // Autocomplete ditemukan
                 String completion = match.substring(pos - w);
+
                 // We cannot modify Document from within notification,
                 // so we submit a task that does the change later
                 SwingUtilities.invokeLater(new CompletionTask(completion, pos + 1));
             }
         } else {
-            // Nothing found
+            // Tidak ditemukan
             mode = Mode.INSERT;
         }
     }
 
     public class CommitAction extends AbstractAction {
-        /**
-         *
-         */
+        @Serial
         private static final long serialVersionUID = 5794543109646743416L;
 
         @Override
         public void actionPerformed(ActionEvent ev) {
             if (mode == Mode.COMPLETION) {
                 int pos = textField.getSelectionEnd();
-                StringBuffer sb = new StringBuffer(textField.getText());
+                StringBuilder sb = new StringBuilder(textField.getText());
                 sb.insert(pos, " ");
                 textField.setText(sb.toString());
                 textField.setCaretPosition(pos + 1);
@@ -94,8 +94,8 @@ public class Autocomplete implements DocumentListener {
     }
 
     private class CompletionTask implements Runnable {
-        private String completion;
-        private int position;
+        private final String completion;
+        private final int position;
 
         CompletionTask(String completion, int position) {
             this.completion = completion;
@@ -103,7 +103,7 @@ public class Autocomplete implements DocumentListener {
         }
 
         public void run() {
-            StringBuffer sb = new StringBuffer(textField.getText());
+            StringBuilder sb = new StringBuilder(textField.getText());
             sb.insert(position, completion);
             textField.setText(sb.toString());
             textField.setCaretPosition(position + completion.length());

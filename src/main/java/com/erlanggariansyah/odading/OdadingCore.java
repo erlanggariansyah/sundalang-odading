@@ -134,6 +134,14 @@ public class OdadingCore extends JFrame implements ActionListener, WindowListene
 
         jScrollPane.setRowHeaderView(jLineArea);
 
+        Autosuggestor autosuggestor = new Autosuggestor(jTextArea, this, keywords, Color.WHITE.brighter(), Color.BLUE, Color.RED, 0.75f) {
+            @Override
+            boolean wordTyped(String typedWord) {
+                System.out.println(typedWord);
+                return super.wordTyped(typedWord);
+            }
+        };
+
         setVisible(true);
     }
 
