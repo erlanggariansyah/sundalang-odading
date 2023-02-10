@@ -47,6 +47,7 @@ public class Autocomplete implements DocumentListener {
         // Mencari posisi awal kata
         int w;
         for (w = pos; w >= 0; w--) {
+            assert content != null;
             if (!Character.isLetter(content.charAt(w))) {
                 break;
             }
@@ -64,8 +65,6 @@ public class Autocomplete implements DocumentListener {
                 // Autocomplete ditemukan
                 String completion = match.substring(pos - w);
 
-                // We cannot modify Document from within notification,
-                // so we submit a task that does the change later
                 SwingUtilities.invokeLater(new CompletionTask(completion, pos + 1));
             }
         } else {

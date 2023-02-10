@@ -3,6 +3,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.erlanggariansyah.odading;
+import com.erlanggariansyah.odading.sundalangcore.SundaLang;
+
 import java.io.*;
 import javax.swing.*;
 import java.awt.*;
@@ -22,6 +24,7 @@ public class OdadingCore extends JFrame implements ActionListener, WindowListene
     JTextArea jTextArea = new JTextArea();
     JTextArea jLineArea = new JTextArea("1");
     File fileNameContainer;
+    SundaLang sundaLang = new SundaLang();
 
     public OdadingCore() {
         Font font = new Font("Consolas", Font.PLAIN, 16);
@@ -34,7 +37,7 @@ public class OdadingCore extends JFrame implements ActionListener, WindowListene
         JMenu jRun = new JMenu("Run");
         JMenu jSyntax = new JMenu("Syntax");
         JMenu jWindow = new JMenu("Window");
-        JMenu jHelp = new JMenu("Help");
+        JMenu jAbout = new JMenu("About");
 
         container.setLayout(new BorderLayout());
 
@@ -52,11 +55,7 @@ public class OdadingCore extends JFrame implements ActionListener, WindowListene
         jTextArea.setFocusTraversalKeysEnabled(false);
 
         // AUTO COMPLETE
-        List<String> keywords = new ArrayList<>(5);
-        keywords.add("example");
-        keywords.add("autocomplete");
-        keywords.add("stackabuse");
-        keywords.add("java");
+        List<String> keywords = sundaLang.getSyntax();
         Autocomplete autoComplete = new Autocomplete(jTextArea, keywords);
         jTextArea.getDocument().addDocumentListener(autoComplete);
         jTextArea.getInputMap().put(KeyStroke.getKeyStroke("TAB"), COMMIT_ACTION);
@@ -80,14 +79,16 @@ public class OdadingCore extends JFrame implements ActionListener, WindowListene
         createMenuItem(jRun, "Run as Java");
         createMenuItem(jRun, "Run as SundaLang");
         jRun.addSeparator();
-        createMenuItem(jRun, "Build");
+        createMenuItem(jRun, "Convert");
+
+        createMenuItem(jAbout, "SundaLang");
 
         jMenuBar.add(jFile);
         jMenuBar.add(jEdit);
         jMenuBar.add(jSyntax);
         jMenuBar.add(jRun);
         jMenuBar.add(jWindow);
-        jMenuBar.add(jHelp);
+        jMenuBar.add(jAbout);
 
         setJMenuBar(jMenuBar);
         //	setIconImage(Toolkit.getDefaultToolkit().getImage("notepad.gif"));
@@ -133,14 +134,6 @@ public class OdadingCore extends JFrame implements ActionListener, WindowListene
         });
 
         jScrollPane.setRowHeaderView(jLineArea);
-
-        Autosuggestor autosuggestor = new Autosuggestor(jTextArea, this, keywords, Color.WHITE.brighter(), Color.BLUE, Color.RED, 0.75f) {
-            @Override
-            boolean wordTyped(String typedWord) {
-                System.out.println(typedWord);
-                return super.wordTyped(typedWord);
-            }
-        };
 
         setVisible(true);
     }
@@ -202,12 +195,45 @@ public class OdadingCore extends JFrame implements ActionListener, WindowListene
         } else if (e.getActionCommand().equals("Paste")) {
             // PASTE COMMAND
             jTextArea.paste();
-        } else if (e.getActionCommand().equals("Syntax Example")) {
-            // ABOUT COMMAND
-            JOptionPane.showMessageDialog(this, "Thanks for Baeldung, StackOverflow & Geeksforgeeks.", "Odading", JOptionPane.INFORMATION_MESSAGE);
         } else if (e.getActionCommand().equals("Cut")) {
             // CUT COMMAND
             jTextArea.cut();
+        } else if (e.getActionCommand().equals("Syntax List")) {
+            // SYNTAX LIST
+        } else if (e.getActionCommand().equals("SundaLang")) {
+            // ABOUT COMMAND
+            JOptionPane.showMessageDialog(this, "Created by Sundanese. Thanks for Baeldung, StackOverflow, Geeksforgeeks & Pecinta Komputer Indonesia.", "Odading", JOptionPane.INFORMATION_MESSAGE);
+        } else if (e.getActionCommand().equals("Run as SundaLang")) {
+            StringBuilder result = new StringBuilder();
+            String code;
+
+            try {
+                code = sundaLang.convert(jTextArea.getText());
+                sundaLang.generateJava(code);
+                String command = "cmd /C \"" + "javac SundaLangOutput.java && java SundaLangOutput" + "\"";
+
+                Process process = Runtime.getRuntime().exec(command);
+                InputStream inputStream = process.getInputStream();
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+                String line;
+                while ((line = bufferedReader.readLine()) != null) {
+                    System.out.println(line);
+                    result.append(line);
+                }
+
+                JOptionPane.showMessageDialog(this, result, "Odading", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception exception) {
+                JOptionPane.showMessageDialog(this, exception.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } else if (e.getActionCommand().equals("Convert")) {
+            try {
+                sundaLang.generateJava(jTextArea.getText());
+                JOptionPane.showMessageDialog(this, "Convert Success: SundaLangOutput.java.", "Odading", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception exception) {
+                JOptionPane.showMessageDialog(this, exception.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
