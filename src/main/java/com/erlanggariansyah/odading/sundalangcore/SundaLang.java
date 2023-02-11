@@ -71,7 +71,6 @@ public class SundaLang {
 
         // logical operator
         dictionary.put("lamun", "if");
-        dictionary.put("iraha", "while");
         dictionary.put("lamunhenteu", "else");
         dictionary.put("lamundeui", "else if");
 
@@ -84,6 +83,7 @@ public class SundaLang {
         dictionary.put("jeungkabehan", "public");
 
         // loops
+        dictionary.put("iraha", "while");
         dictionary.put("pikeun", "for");
 
         // others
